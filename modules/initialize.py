@@ -8,8 +8,8 @@ class Initialize:
         
         try:
             self.screen = pygame.display.set_mode((self.settings['WIDTH'],self.settings['HEIGHT'])) 
-        except KeyError:
-            logging.error("No value for HEIGHT or WIDTH in config found.")
+        except KeyError as e:
+            logging.error(f"{e}: No value for HEIGHT or WIDTH in config found.")
             sys.exit()
 
         self.clock = pygame.time.Clock()
@@ -35,8 +35,8 @@ class Initialize:
             pygame.display.update()
             try:
                 self.clock.tick(self.settings['FPS'])
-            except ValueError:
-                logging.error("No FPS value in config found.")
+            except ValueError as e:
+                logging.error(f"{e}: No FPS value in config found.")
 
 
     def parse_settings(self):
