@@ -18,26 +18,39 @@ class Initialize:
         pygame.display.set_icon(boid_icon)
 
     def run(self):
+        # A list that will hold all postions of the boids
+        positions = list()
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+                # Adding a boid for every mouse click
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    positions.append(pygame.mouse.get_pos())
 
 
             # Debug Messages
             message_list = list()
-            message_list.append("Hello World!")
-            message_list.append(f"FPS={self.settings['FPS']}")
+            message_list.append(f"{positions=}")
 
             self.screen.fill("black")
+            self.render_boid(self.screen, positions)
             Debug(message_list, self.screen)
 
             pygame.display.update()
+
             try:
                 self.clock.tick(self.settings['FPS'])
             except ValueError as e:
                 logging.error(f"{e}: No FPS value in config found.")
 
+    def render_boid(self, screen: pygame.Surface, positions: list[tuple[int, int]]): 
+        boid_surface = pygame.image.load("graphics/Icon.png")
+        boid_surface = pygame.transform.scale(boid_surface, (50,50))
+        for coords in positions:
+            boid_rect = boid_surface.get_rect(center = coords)
+            screen.blit(boid_surface, boid_rect)
 
     def parse_settings(self):
         # Get root directory by splitting __file__ at '/' twice and 
