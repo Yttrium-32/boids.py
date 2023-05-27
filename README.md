@@ -1,11 +1,10 @@
-# Pygame Template
-- A simple template with some helper classes to make starting pygame projects a little easier
+# Boid Simulation
+- A simple simulation of boids written in python using pygame.
 
-## Overview
-### `debug.py` 
-- contains a class that writes messages to the screen
-### `initialize.py` 
-- Does all the initializing that pygame requires. 
-- Also where main logic of the game lies (for now)
-### `main.py`
-- Run this file to start the project
+## Setup
+`
+    python -m venv venv
+    source venv/bin/activate
+    python -m pip install -r requirements.txt
+ `
+
