@@ -42,11 +42,14 @@ class Initialize:
 
             try:
                 self.clock.tick(self.settings['FPS'])
-            except ValueError as e:
+            except KeyError as e:
                 logging.error(f"{e}: No FPS value in config found.")
 
     def render_boid(self, screen: pygame.Surface, positions: list[tuple[int, int]]): 
-        boid_surface = pygame.image.load("graphics/Icon.png")
+        try:
+            boid_surface = pygame.image.load(self.settings["ICONPATH"])
+        except KeyError as e:
+            logging.error(f"{e}: No value for ICONPATH found in config.")
         boid_surface = pygame.transform.scale(boid_surface, (50,50))
         for coords in positions:
             boid_rect = boid_surface.get_rect(center = coords)
