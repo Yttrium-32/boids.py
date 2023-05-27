@@ -21,11 +21,12 @@ class Initialize:
                     sys.exit()
 
 
+            # Debug Messages
             message_list = list()
             message_list.append("Hello World!")
             message_list.append(f"FPS={self.settings['FPS']}")
 
-            self.screen.fill("blue")
+            self.screen.fill("black")
             Debug(message_list, self.screen)
 
             pygame.display.update()
