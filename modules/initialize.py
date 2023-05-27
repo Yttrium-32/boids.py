@@ -13,6 +13,9 @@ class Initialize:
             sys.exit()
 
         self.clock = pygame.time.Clock()
+        pygame.display.set_caption("Boid Simulation")
+        boid_icon = pygame.image.load("graphics/Icon.png").convert_alpha()
+        pygame.display.set_icon(boid_icon)
 
     def run(self):
         while True:
