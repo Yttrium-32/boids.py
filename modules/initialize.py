@@ -1,10 +1,11 @@
 import pygame, sys, logging
 from modules.debug import Debug
+from modules.boid import Boid
 
 class Initialize:
     def __init__(self) -> None:
         pygame.init()
-        self.settings: dict = self.parse_settings()
+        self.settings: dict[str, str| int] = self.parse_settings()
         
         try:
             self.screen = pygame.display.set_mode((self.settings['WIDTH'],self.settings['HEIGHT'])) 
@@ -18,8 +19,9 @@ class Initialize:
         pygame.display.set_icon(boid_icon)
 
     def run(self):
+        boid = Boid(self.settings)
         # A list that will hold all postions of the boids
-        positions = list()
+        positions: list[tuple[int, int]] = list()
 
         while True:
             for event in pygame.event.get():
@@ -31,11 +33,14 @@ class Initialize:
 
 
             # Debug Messages
-            message_list = list()
+            message_list: list[str] = list()
             message_list.append(f"{positions=}")
 
             self.screen.fill("black")
-            self.render_boid(self.screen, positions)
+
+            for boid_surface, boid_rect in boid.renderable(positions):
+                self.screen.blit(boid_surface, boid_rect)
+
             Debug(message_list, self.screen)
 
             pygame.display.update()
@@ -44,16 +49,7 @@ class Initialize:
                 self.clock.tick(self.settings['FPS'])
             except KeyError as e:
                 logging.error(f"{e}: No FPS value in config found.")
-
-    def render_boid(self, screen: pygame.Surface, positions: list[tuple[int, int]]): 
-        try:
-            boid_surface = pygame.image.load(self.settings["ICONPATH"])
-        except KeyError as e:
-            logging.error(f"{e}: No value for ICONPATH found in config.")
-        boid_surface = pygame.transform.scale(boid_surface, (50,50))
-        for coords in positions:
-            boid_rect = boid_surface.get_rect(center = coords)
-            screen.blit(boid_surface, boid_rect)
+                sys.exit()
 
     def parse_settings(self):
         # Get root directory by splitting __file__ at '/' twice and 
