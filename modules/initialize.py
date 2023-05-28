@@ -33,13 +33,16 @@ class Initialize:
 
             # Debug Messages
             message_list: list[str] = list()
-            message_list.append(f"{positions=}")
-            message_list.append(f"fps={int(self.clock.get_fps())}")
 
             self.screen.fill("black")
 
-            for boid_surface, boid_rect in boid.renderable():
-                self.screen.blit(boid_surface, boid_rect)
+            boi_list: list = list()
+            for boid_properties in boid.renderable():
+                self.screen.blit(boid_properties["surface"], boid_properties["rectangle"])
+                boi_list.append((boid_properties["rectangle"], boid_properties["rotation"]))
+
+            message_list.append(f"{boi_list=}")
+            message_list.append(f"boid_count={len(boi_list)}")
 
             Debug(message_list, self.screen)
 
