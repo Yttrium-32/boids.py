@@ -29,16 +29,16 @@ class Initialize:
                     sys.exit()
                 # Adding a boid for every mouse click
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    positions.append(pygame.mouse.get_pos())
-
+                    boid.generate(pygame.mouse.get_pos())
 
             # Debug Messages
             message_list: list[str] = list()
             message_list.append(f"{positions=}")
+            message_list.append(f"fps={int(self.clock.get_fps())}")
 
             self.screen.fill("black")
 
-            for boid_surface, boid_rect in boid.renderable(positions):
+            for boid_surface, boid_rect in boid.renderable():
                 self.screen.blit(boid_surface, boid_rect)
 
             Debug(message_list, self.screen)
