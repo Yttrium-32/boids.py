@@ -27,9 +27,18 @@ class Initialize:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+
                 # Adding a boid for every mouse click
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    boid.generate(pygame.mouse.get_pos())
+                    left_clicked, middle_clicked, right_clicked = pygame.mouse.get_pressed()
+                    if left_clicked and not(middle_clicked or right_clicked):
+                        boid.generate(pygame.mouse.get_pos())
+
+                # Add boid everytime spacebar is pressed
+                if event.type == pygame.KEYDOWN:
+                    keys = pygame.key.get_pressed()
+                    if keys[pygame.K_SPACE]:
+                        boid.generate(pygame.mouse.get_pos())
 
             # Debug Messages
             message_list: list[str] = list()
