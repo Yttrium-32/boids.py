@@ -15,7 +15,13 @@ class Boid:
     def renderable(self):
         for boid_rect, boid_rotation in self.boi_list:
             modified_boid_surface = pygame.transform.rotate(self.boid_surface, boid_rotation)
-            yield modified_boid_surface, boid_rect
+            boid_properties = {
+                "surface": modified_boid_surface, 
+                "rectangle": boid_rect, 
+                "rotation": boid_rotation
+            }
+
+            yield boid_properties
 
     def generate(self, coords: tuple[int, int]):
         boid_rect = self.boid_surface.get_rect(center = coords)
