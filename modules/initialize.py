@@ -19,6 +19,11 @@ class Initialize:
         pygame.display.set_icon(boid_icon)
 
     def run(self):
+        # Timer to update the boids
+        update_boid_timer = pygame.USEREVENT + 1
+        # Triggers every 100 miliseconds
+        pygame.time.set_timer(update_boid_timer, 100)
+
         boid = Boid(self.settings)
 
         while True:
@@ -38,18 +43,23 @@ class Initialize:
                     if keys[pygame.K_SPACE]:
                         boid.generate(pygame.mouse.get_pos())
 
+                # Update boid properties everytime update_boid_timer is triggered
+                # that is boid properties are updated every 100 miliseconds
+                if event.type == update_boid_timer:
+                    boid.update_properties()
+
             # Debug Messages
             message_list: list[str] = list()
 
             self.screen.fill("black")
 
-            boi_list: list = list()
+            boid_list: list = list()
             for boid_properties in boid.renderable():
                 self.screen.blit(boid_properties["surface"], boid_properties["rectangle"])
-                boi_list.append((boid_properties["rectangle"], boid_properties["rotation"]))
+                boid_list.append((boid_properties["rectangle"], boid_properties["rotation"]))
 
-            message_list.append(f"{boi_list=}")
-            message_list.append(f"boid_count={len(boi_list)}")
+            message_list.append(f"{boid_list=}")
+            message_list.append(f"boid_count={len(boid_list)}")
 
             Debug(message_list, self.screen)
 
