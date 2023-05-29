@@ -1,5 +1,6 @@
 import sys, logging
 import pygame
+import numpy as np
 from random import randint
 
 class Boid:
@@ -10,10 +11,10 @@ class Boid:
         except KeyError as e:
             logging.error(f"{e}: No value for ICONPATH found in config.")
             sys.exit()
-        self.boi_list: list[str] = list()
+        self.boid_list: list[list] = list()
             
     def renderable(self):
-        for boid_rect, boid_rotation in self.boi_list:
+        for boid_rect, boid_rotation in self.boid_list:
             modified_boid_surface = pygame.transform.rotate(self.boid_surface, boid_rotation)
             boid_properties = {
                 "surface": modified_boid_surface, 
@@ -25,9 +26,25 @@ class Boid:
 
     def generate(self, coords: tuple[int, int]):
         boid_rect = self.boid_surface.get_rect(center = coords)
-        boid_rotation = self.calculate_rotation()
-        self.boi_list.append((boid_rect, boid_rotation))
+        boid_rotation = randint(0,360)
+        self.boid_list.append([boid_rect, boid_rotation])
 
-    def calculate_rotation(self) -> int:
+    def update_properties(self):
+        for i in range(len(self.boid_list)):
+            # Changing angle of each boid in boid_list
+            self.boid_list[i][1] = randint(0,360)
+
+    def calculate_rotation(self, boid_coords: tuple[int,int]) -> int:
         rotation: int = 0
+
+        mouse_x = pygame.mouse.get_pos()[0]
+        x_vector = np.array([mouse_x,0])
+        boid_vector = np.array(boid_coords)
+
+        dot_product = np.dot(x_vector, boid_vector)
+        scalar_prodcut = np.linalg.norm(x_vector) * np.linalg.norm(boid_vector)
+
+        angle_radian = np.arccos(dot_product * scalar_prodcut)
+        rotation = np.degrees(angle_radian)
+
         return rotation
