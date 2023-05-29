@@ -20,8 +20,6 @@ class Initialize:
 
     def run(self):
         boid = Boid(self.settings)
-        # A list that will hold all postions of the boids
-        positions: list[tuple[int, int]] = list()
 
         while True:
             for event in pygame.event.get():

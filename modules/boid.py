@@ -25,5 +25,9 @@ class Boid:
 
     def generate(self, coords: tuple[int, int]):
         boid_rect = self.boid_surface.get_rect(center = coords)
-        boid_rotation = randint(0,360)
+        boid_rotation = self.calculate_rotation()
         self.boi_list.append((boid_rect, boid_rotation))
+
+    def calculate_rotation(self) -> int:
+        rotation: int = 0
+        return rotation
