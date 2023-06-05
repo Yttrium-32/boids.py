@@ -60,6 +60,7 @@ class Initialize:
 
             message_list.append(f"{boid_list=}")
             message_list.append(f"boid_count={len(boid_list)}")
+            message_list.append(f"mouse_pos={pygame.mouse.get_pos()}")
 
             Debug(message_list, self.screen)
 
