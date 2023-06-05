@@ -11,12 +11,12 @@ class Boid:
         except KeyError as e:
             logging.error("No value for ICONPATH found in config.")
             sys.exit()
-        self.boid_list: list[list] = list()
+        self.boid_list: list[dict] = list()
             
     def renderable(self):
-        for property_list in self.boid_list:
-            boid_rect: pygame.Rect = property_list[0]
-            boid_rotation = property_list[1]
+        for property_dict in self.boid_list:
+            boid_rect: pygame.Rect = property_dict["rectangle"]
+            boid_rotation = property_dict["rotation"]
             try:
                 modified_boid_surface = pygame.transform.rotate(self.boid_surface, boid_rotation)
             except pygame.error: 
@@ -32,14 +32,15 @@ class Boid:
     def generate(self, coords: tuple[int, int]):
         boid_rect = self.boid_surface.get_rect(center = coords)
         boid_rotation = randint(0,360)
-        self.boid_list.append([boid_rect, boid_rotation, coords])
+        self.boid_list.append({ "rectangle": boid_rect, "rotation": boid_rotation, "coords": coords })
+        # self.boid_list.append([boid_rect, boid_rotation, coords])
 
     def update_properties(self, mouse_pos: list[int, int]):
         for i in range(len(self.boid_list)):
             # Changing angle of each boid in boid_list
-            # self.boid_list[i][1] = self.calculate_rotation(mouse_pos, self.boid_list[i][2])
-            if self.boid_list[i][1] >= 360:
-                self.boid_list[i][1] = self.boid_list[i][1] - 360
+            # self.boid_list[i]["rotation"] = self.calculate_rotation(mouse_pos, self.boid_list[i]["coords"])
+            if self.boid_list[i]["rotation"] >= 360:
+                self.boid_list[i]["rotation"] = self.boid_list[i]["rotation"] - 360
 
     def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
         vector1 = np.array(mouse_pos)
