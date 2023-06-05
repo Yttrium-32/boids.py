@@ -9,7 +9,7 @@ class Boid:
             boid_surface = pygame.image.load(settings["ICONPATH"])
             self.boid_surface = pygame.transform.scale(boid_surface, (50,50))
         except KeyError as e:
-            logging.error(f"{e}: No value for ICONPATH found in config.")
+            logging.error("No value for ICONPATH found in config.")
             sys.exit()
         self.boid_list: list[list] = list()
             
@@ -34,24 +34,22 @@ class Boid:
         boid_rotation = randint(0,360)
         self.boid_list.append([boid_rect, boid_rotation, coords])
 
-    def update_properties(self, mouse_x: int):
+    def update_properties(self, mouse_pos: list[int, int]):
         for i in range(len(self.boid_list)):
             # Changing angle of each boid in boid_list
-            self.boid_list[i][1] = self.calculate_rotation(self.boid_list[i][2], mouse_x)
+            # self.boid_list[i][1] = self.calculate_rotation(mouse_pos, self.boid_list[i][2])
             if self.boid_list[i][1] >= 360:
                 self.boid_list[i][1] = self.boid_list[i][1] - 360
 
-    def calculate_rotation(self, boid_coords: tuple[int,int], mouse_x: int) -> int:
-        rotation: int = 0
+    def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
+        vector1 = np.array(mouse_pos)
+        vector2 = np.array(boid_pos)
 
-        x_vector = np.array([mouse_x,0])
-        boid_vector = np.array(boid_coords)
+        final_vector = np.add(vector2, -vector1)
+        x_axis = np.array([1,0])
+        dot_product = np.dot(final_vector, x_axis)
+        cosine_of_angle = dot_product / np.linalg.norm(final_vector)
+        angle_radian = np.arccos(cosine_of_angle)
 
-        dot_product = np.dot(x_vector, boid_vector)
-        scalar_prodcut = np.linalg.norm(x_vector) * np.linalg.norm(boid_vector)
+        return round(180 + np.degrees(angle_radian),2)
 
-        angle_radian = np.arccos(dot_product / scalar_prodcut)
-        rotation = np.degrees(angle_radian)
-
-        print(f"{boid_vector=}")
-        return rotation
