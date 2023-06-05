@@ -5,6 +5,7 @@ from random import randint
 
 class Boid:
     def __init__(self, settings: dict) -> None:
+        self.settings = settings
         try:
             boid_surface = pygame.image.load(settings["ICONPATH"])
             self.boid_surface = pygame.transform.scale(boid_surface, (50,50))
@@ -38,19 +39,42 @@ class Boid:
     def update_properties(self, mouse_pos: list[int, int]):
         for i in range(len(self.boid_list)):
             # Changing angle of each boid in boid_list
-            # self.boid_list[i]["rotation"] = self.calculate_rotation(mouse_pos, self.boid_list[i]["coords"])
+            self.boid_list[i]["rotation"] = self.calculate_rotation(mouse_pos, self.boid_list[i]["rectangle"].center)
             if self.boid_list[i]["rotation"] >= 360:
                 self.boid_list[i]["rotation"] = self.boid_list[i]["rotation"] - 360
 
-    def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
-        vector1 = np.array(mouse_pos)
-        vector2 = np.array(boid_pos)
+            current_rect = self.boid_list[i]["rectangle"]
+            self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect)
 
-        final_vector = np.add(vector2, -vector1)
+    def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
+        mouse_vector = np.array(mouse_pos) # Vector of mouse coords
+        boid_vector = np.array(boid_pos) # Vector of boid coords
+
+        final_vector = np.add(boid_vector, -mouse_vector)
         x_axis = np.array([1,0])
         dot_product = np.dot(final_vector, x_axis)
         cosine_of_angle = dot_product / np.linalg.norm(final_vector)
         angle_radian = np.arccos(cosine_of_angle)
 
-        return round(180 + np.degrees(angle_radian),2)
+        final_rotation = 180 + round(np.degrees(angle_radian),2)
+
+        if mouse_vector[1] < boid_vector[1]:
+            return 360 - final_rotation
+        else:
+            return final_rotation
+
+    def calculate_new_rect(self, current_rect: pygame.Rect):
+        new_rect: pygame.Rect = current_rect
+        new_rect.x += 10
+        new_rect.y += 10
+
+        # Screen wrap implementation
+        # The -10 and +30 is to ensure the rectangle is loaded and unloaded off screen
+        # Since the rectangle doesn't perfectly align with the sprite
+        if new_rect.x >= self.settings["WIDTH"] - 10:
+            new_rect.x -= self.settings["WIDTH"] + 30
+        if new_rect.y >= self.settings["HEIGHT"] - 10:
+            new_rect.y -= self.settings["HEIGHT"] + 30
+
+        return new_rect
 
