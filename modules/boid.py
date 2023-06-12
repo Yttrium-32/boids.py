@@ -31,11 +31,11 @@ class Boid:
             yield boid_properties
 
     def generate(self, coords: tuple[int, int]):
-        boid_rect = self.boid_surface.get_rect(center = coords)
         boid_rotation = randint(0,360)
+        boid_rect = self.boid_surface.get_rect(center = coords)
         self.boid_list.append({ "rectangle": boid_rect, "rotation": boid_rotation, "coords": coords })
-        # self.boid_list.append([boid_rect, boid_rotation, coords])
 
+        # self.boid_list.append([boid_rect, boid_rotation, coords])
     def update_properties(self, mouse_pos: list[int, int]):
         for i in range(len(self.boid_list)):
             # Changing angle of each boid in boid_list
@@ -44,8 +44,8 @@ class Boid:
                 self.boid_list[i]["rotation"] = self.boid_list[i]["rotation"] - 360
 
             current_rect = self.boid_list[i]["rectangle"]
-            self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect)
 
+            self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect, self.boid_list[i]["rotation"])
     def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
         mouse_vector = np.array(mouse_pos) # Vector of mouse coords
         boid_vector = np.array(boid_pos) # Vector of boid coords
@@ -63,8 +63,9 @@ class Boid:
         else:
             return final_rotation
 
-    def calculate_new_rect(self, current_rect: pygame.Rect):
+    def calculate_new_rect(self, current_rect: pygame.Rect, angle: int):
         new_rect: pygame.Rect = current_rect
+        # new_rect.x += self.calculate_distance()
         new_rect.x += 10
         new_rect.y += 10
 
@@ -77,4 +78,8 @@ class Boid:
             new_rect.y -= self.settings["HEIGHT"] + 30
 
         return new_rect
+
+    def calculate_distance(self, x_coord: int, y_coord: int, angle: int):
+        next_x_coord = self.settings["WIDTH"]
+        next_y_coord = np.tan(angle) * (next_x_coord - x_coord) + y_coord
 
