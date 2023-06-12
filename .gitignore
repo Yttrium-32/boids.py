@@ -2,3 +2,4 @@ venv/
 modules/__pycache__/
 graphics/*~
 test_angle.py
+get_coord.py
