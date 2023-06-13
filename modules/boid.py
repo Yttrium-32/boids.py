@@ -47,7 +47,23 @@ class Boid:
 
             self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect, angle)
 
-    def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
+    def calculate_new_rect(self, current_rect: pygame.Rect, angle: int ):
+        new_rect: pygame.Rect = current_rect
+        center_coords = current_rect.center
+        new_rect.center: tuple[int, int] = self.calculate_distance(10, center_coords, angle)
+
+        # Screen wrap implementation
+        # The -10 and +30 is to ensure the rectangle is loaded and unloaded off screen
+        # Since the rectangle doesn't perfectly align with the sprite
+        if new_rect.x >= self.settings["WIDTH"] - 10:
+            new_rect.x -= self.settings["WIDTH"] + 30
+        if new_rect.y >= self.settings["HEIGHT"] - 10:
+            new_rect.y -= self.settings["HEIGHT"] + 30
+
+        return new_rect
+
+    @classmethod
+    def calculate_rotation(cls, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
         mouse_vector = np.array(mouse_pos) # Vector of mouse coords
         boid_vector = np.array(boid_pos) # Vector of boid coords
 
@@ -67,22 +83,9 @@ class Boid:
         else:
             return final_rotation
 
-    def calculate_new_rect(self, current_rect: pygame.Rect, angle: int ):
-        new_rect: pygame.Rect = current_rect
-        center_coords = current_rect.center
-        new_rect.center: tuple[int, int] = self.calculate_distance(5, center_coords, angle)
 
-        # Screen wrap implementation
-        # The -10 and +30 is to ensure the rectangle is loaded and unloaded off screen
-        # Since the rectangle doesn't perfectly align with the sprite
-        if new_rect.x >= self.settings["WIDTH"] - 10:
-            new_rect.x -= self.settings["WIDTH"] + 30
-        if new_rect.y >= self.settings["HEIGHT"] - 10:
-            new_rect.y -= self.settings["HEIGHT"] + 30
-
-        return new_rect
-
-    def calculate_distance(self, speed, coords, angle) -> tuple[int, int]:
+    @classmethod
+    def calculate_distance(cls, speed, coords, angle) -> tuple[int, int]:
         rad_angle = np.radians(angle)
         new_x = coords[0] + (speed * np.cos(rad_angle))
         new_y = coords[1] - (speed * np.sin(rad_angle))

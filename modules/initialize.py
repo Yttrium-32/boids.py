@@ -58,7 +58,8 @@ class Initialize:
                 self.screen.blit(boid_properties["surface"], boid_properties["rectangle"])
                 boid_list.append((boid_properties["rectangle"], boid_properties["rotation"]))
 
-            message_list.append(f"{boid_list=}")
+            for i in range(len(boid_list)):
+                message_list.append(f"boid_list={boid_list[i][0].center}, {round(boid_list[i][1], 2)}")
             message_list.append(f"boid_count={len(boid_list)}")
             message_list.append(f"mouse_pos={pygame.mouse.get_pos()}")
 
