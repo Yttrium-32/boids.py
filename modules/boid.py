@@ -9,7 +9,7 @@ class Boid:
         try:
             boid_surface = pygame.image.load(settings["ICONPATH"])
             self.boid_surface = pygame.transform.scale(boid_surface, (50,50))
-        except KeyError as e:
+        except KeyError:
             logging.error("No value for ICONPATH found in config.")
             sys.exit()
         self.boid_list: list[dict] = list()
@@ -47,10 +47,11 @@ class Boid:
 
             self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect, angle)
 
-    def calculate_new_rect(self, current_rect: pygame.Rect, angle: int ):
+    def calculate_new_rect(self, current_rect: pygame.Rect, angle: int):
         new_rect: pygame.Rect = current_rect
         center_coords = current_rect.center
-        new_rect.center: tuple[int, int] = self.calculate_distance(10, center_coords, angle)
+        new_coords = self.calculate_distance(self.settings["SPEED"], center_coords, angle)
+        new_rect.center: tuple[int, int] = new_coords
 
         # Screen wrap implementation
         # The -10 and +30 is to ensure the rectangle is loaded and unloaded off screen
@@ -67,10 +68,14 @@ class Boid:
         mouse_vector = np.array(mouse_pos) # Vector of mouse coords
         boid_vector = np.array(boid_pos) # Vector of boid coords
 
-        if boid_vector[0] != mouse_vector[0] and boid_vector[1] != mouse_vector[1] :
+        # if the position of the mouse and boid coincide the sprite does not render
+        # This doesn't really ever happen except for a split second when the boid is created
+        # To prevent this from happening we simply don't calculate a new vector
+        if boid_vector[0] != mouse_vector[0] or boid_vector[1] != mouse_vector[1] :
             final_vector = np.add(boid_vector, -mouse_vector)
         else:
             final_vector = boid_vector
+
         x_axis = np.array([1,0])
         dot_product = np.dot(final_vector, x_axis)
         cosine_of_angle = dot_product / np.linalg.norm(final_vector)
@@ -82,7 +87,6 @@ class Boid:
             return 360 - final_rotation
         else:
             return final_rotation
-
 
     @classmethod
     def calculate_distance(cls, speed, coords, angle) -> tuple[int, int]:
