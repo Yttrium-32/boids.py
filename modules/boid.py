@@ -35,23 +35,26 @@ class Boid:
         boid_rect = self.boid_surface.get_rect(center = coords)
         self.boid_list.append({ "rectangle": boid_rect, "rotation": boid_rotation, "coords": coords })
 
-        # self.boid_list.append([boid_rect, boid_rotation, coords])
     def update_properties(self, mouse_pos: list[int, int]):
         for i in range(len(self.boid_list)):
             # Changing angle of each boid in boid_list
-            self.boid_list[i]["rotation"] = self.calculate_rotation(mouse_pos, self.boid_list[i]["rectangle"].center)
+            angle = self.calculate_rotation(mouse_pos, self.boid_list[i]["rectangle"].center)
+            self.boid_list[i]["rotation"] = angle
             if self.boid_list[i]["rotation"] >= 360:
                 self.boid_list[i]["rotation"] = self.boid_list[i]["rotation"] - 360
 
             current_rect = self.boid_list[i]["rectangle"]
 
-            self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect, self.boid_list[i]["rotation"], mouse_pos)
+            self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect, angle)
 
     def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
         mouse_vector = np.array(mouse_pos) # Vector of mouse coords
         boid_vector = np.array(boid_pos) # Vector of boid coords
 
-        final_vector = np.add(boid_vector, -mouse_vector)
+        if boid_vector[0] != mouse_vector[0] and boid_vector[1] != mouse_vector[1] :
+            final_vector = np.add(boid_vector, -mouse_vector)
+        else:
+            final_vector = boid_vector
         x_axis = np.array([1,0])
         dot_product = np.dot(final_vector, x_axis)
         cosine_of_angle = dot_product / np.linalg.norm(final_vector)
@@ -64,12 +67,10 @@ class Boid:
         else:
             return final_rotation
 
-    def calculate_new_rect(self, current_rect: pygame.Rect, angle: int, mouse_pos: tuple[int, int]):
+    def calculate_new_rect(self, current_rect: pygame.Rect, angle: int ):
         new_rect: pygame.Rect = current_rect
-        new_coords: tuple[int, int] = self.calculate_distance(1, current_rect.center, mouse_pos)
-        print(f"{new_coords=}")
-        # new_rect.x += 10
-        # new_rect.y += 10
+        center_coords = current_rect.center
+        new_rect.center: tuple[int, int] = self.calculate_distance(5, center_coords, angle)
 
         # Screen wrap implementation
         # The -10 and +30 is to ensure the rectangle is loaded and unloaded off screen
@@ -81,19 +82,9 @@ class Boid:
 
         return new_rect
 
-    def calculate_distance(
-        self, 
-        distance: float, 
-        boid_coords: tuple[int, int], 
-        coords_to_move: tuple[int, int]
-        ) -> tuple[int, int]:
-
-        vector_1 = np.array(boid_coords)
-        vector_2 = np.array(coords_to_move)
-
-        line_vector = -np.add(vector_1, -vector_2)
-        unit_vector = line_vector / np.linalg.norm(line_vector)
-
-        result = vector_1 + (distance * unit_vector)
-        return (result[0], result[1])
+    def calculate_distance(self, speed, coords, angle) -> tuple[int, int]:
+        rad_angle = np.radians(angle)
+        new_x = coords[0] + (speed * np.cos(rad_angle))
+        new_y = coords[1] - (speed * np.sin(rad_angle))
+        return new_x, new_y
 
