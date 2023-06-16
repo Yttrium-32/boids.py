@@ -16,10 +16,11 @@ class Debug:
 
             for _  in range(debug_count):
                 message_coords = [Debug.default_message_coords[0], Debug.default_message_coords[1] * debug_count * 10]
+<<<<<<< HEAD
             print(f"{message_coords=}")
+=======
+>>>>>>> 31e94f7 (Accidently made brownian motion)
 
             message_surface = font.render(text=debug_message, fgcolor="white", bgcolor="black")
             screen.blit(message_surface[0], message_coords)
-
-
 
