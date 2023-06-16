@@ -20,9 +20,14 @@ class Initialize:
 
     def run(self):
         # Timer to update the boids
-        update_boid_timer = pygame.USEREVENT + 1
         # Triggers every 100 miliseconds
+        update_boid_timer = pygame.USEREVENT + 1
         pygame.time.set_timer(update_boid_timer, 100)
+
+        # Timer to reload config
+        # Reloads every 2 seconds
+        reload_config_timer = pygame.USEREVENT + 2
+        pygame.time.set_timer(reload_config_timer, 2000)
 
         boid = Boid(self.settings)
 
@@ -47,6 +52,13 @@ class Initialize:
                 # that is boid properties are updated every 100 miliseconds
                 if event.type == update_boid_timer:
                     boid.update_properties(pygame.mouse.get_pos())
+
+                # Reload settings values everytime reload_config_timer is triggered
+                # Values are realoaded every 2 seconds
+                if event.type == reload_config_timer:
+                    self.settings: dict[str, str| int] = self.parse_settings()
+                    boid.update_settings(self.settings)
+                    print(f"{self.settings['FOLLOW_MOUSE']=}")
 
             # Debug Messages
             message_list: list[str] = list()
