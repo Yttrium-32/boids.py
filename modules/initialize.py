@@ -55,6 +55,7 @@ class Initialize:
 
             boid_list: list = list()
 
+            # Render spherical hit boxes before boids
             for boid_properties in boid.renderable():
                 pygame.draw.circle(self.screen, '#111111', boid_properties["rectangle"].center, 120, 0)
 
