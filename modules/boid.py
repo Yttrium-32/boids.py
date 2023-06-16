@@ -69,11 +69,9 @@ class Boid:
         # Screen wrap implementation
         # The -10 and +30 is to ensure the rectangle is loaded and unloaded off screen
         # Since the rectangle doesn't perfectly align with the sprite
-
-
         if not self.wrap:
             # Screen wrap vertically
-            if new_rect.x >= self.settings["WIDTH"]:
+            if new_rect.x >= self.settings["WIDTH"] :
                 new_rect.x -= self.settings["WIDTH"]
                 self.wrap = 1
             if new_rect.x <= 0:
@@ -115,6 +113,9 @@ class Boid:
             return 360 - final_rotation
         else:
             return final_rotation
+
+    def update_settings(self, new_settings):
+        self.settings = new_settings
 
     @classmethod
     def calculate_distance(cls, speed, coords, angle) -> tuple[int, int]:
