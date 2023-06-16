@@ -50,7 +50,11 @@ class Boid:
     def calculate_new_rect(self, current_rect: pygame.Rect, angle: int):
         new_rect: pygame.Rect = current_rect
         center_coords = current_rect.center
-        new_coords = self.calculate_distance(self.settings["SPEED"], center_coords, angle)
+        try:
+            new_coords = self.calculate_distance(self.settings["SPEED"], center_coords, angle)
+        except KeyError:
+            logging.error("Value for SPEED not defined in config.")
+            sys.exit()
         new_rect.center: tuple[int, int] = new_coords
 
         # Screen wrap implementation
@@ -63,30 +67,36 @@ class Boid:
 
         return new_rect
 
-    @classmethod
-    def calculate_rotation(cls, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
-        mouse_vector = np.array(mouse_pos) # Vector of mouse coords
-        boid_vector = np.array(boid_pos) # Vector of boid coords
+    def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
+        try:
+            if self.settings["FOLLOW_MOUSE"]:
+                mouse_vector = np.array(mouse_pos) # Vector of mouse coords
+                boid_vector = np.array(boid_pos) # Vector of boid coords
 
-        # if the position of the mouse and boid coincide the sprite does not render
-        # This doesn't really ever happen except for a split second when the boid is created
-        # To prevent this from happening we simply don't calculate a new vector
-        if boid_vector[0] != mouse_vector[0] or boid_vector[1] != mouse_vector[1] :
-            final_vector = np.add(boid_vector, -mouse_vector)
-        else:
-            final_vector = boid_vector
+                # if the position of the mouse and boid coincide the sprite does not render
+                # This doesn't really ever happen except for a split second when the boid is created
+                # To prevent this from happening we simply don't calculate a new vector
+                if boid_vector[0] != mouse_vector[0] or boid_vector[1] != mouse_vector[1] :
+                    final_vector = np.add(boid_vector, -mouse_vector)
+                else:
+                    final_vector = boid_vector
 
-        x_axis = np.array([1,0])
-        dot_product = np.dot(final_vector, x_axis)
-        cosine_of_angle = dot_product / np.linalg.norm(final_vector)
-        angle_radian = np.arccos(cosine_of_angle)
+                x_axis = np.array([1,0])
+                dot_product = np.dot(final_vector, x_axis)
+                cosine_of_angle = dot_product / np.linalg.norm(final_vector)
+                angle_radian = np.arccos(cosine_of_angle)
 
-        final_rotation = 180 + round(np.degrees(angle_radian),2)
+                final_rotation = 180 + round(np.degrees(angle_radian),2)
 
-        if mouse_vector[1] < boid_vector[1]:
-            return 360 - final_rotation
-        else:
-            return final_rotation
+                if mouse_vector[1] < boid_vector[1]:
+                    return 360 - final_rotation
+                else:
+                    return final_rotation
+
+            else: 
+                return randint(0, 360)
+        except:
+            return randint(0, 360)
 
     @classmethod
     def calculate_distance(cls, speed, coords, angle) -> tuple[int, int]:

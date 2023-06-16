@@ -54,12 +54,16 @@ class Initialize:
             self.screen.fill("black")
 
             boid_list: list = list()
+
+            for boid_properties in boid.renderable():
+                pygame.draw.circle(self.screen, '#111111', boid_properties["rectangle"].center, 120, 0)
+
             for boid_properties in boid.renderable():
                 self.screen.blit(boid_properties["surface"], boid_properties["rectangle"])
                 boid_list.append((boid_properties["rectangle"], boid_properties["rotation"]))
 
             for i in range(len(boid_list)):
-                message_list.append(f"boid_list={boid_list[i][0].center}, {round(boid_list[i][1], 2)}")
+                message_list.append(f"boid_{i}={boid_list[i][0].center}, {round(boid_list[i][1], 2)}")
             message_list.append(f"boid_count={len(boid_list)}")
             message_list.append(f"mouse_pos={pygame.mouse.get_pos()}")
 
