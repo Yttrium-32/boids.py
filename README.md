@@ -1,4 +1,5 @@
 # Boid Simulation
+### NOTE: This WIP and my first major project, so expect inefficiencies and bad code.
 - A simple simulation of boids written in python using pygame.
 
 ## Setup
