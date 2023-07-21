@@ -58,27 +58,28 @@ class Initialize:
                 if event.type == reload_config_timer:
                     self.settings: dict[str, str| int] = self.parse_settings()
                     boid.update_settings(self.settings)
-                    print(f"{self.settings['FOLLOW_MOUSE']=}")
 
             # Debug Messages
             message_list: list[str] = list()
 
             self.screen.fill("black")
 
-            boid_list: list = list()
+            boid_list = boid.get_renderable()
 
-            # Render spherical hit boxes before boids
-            for boid_properties in boid.renderable():
-                pygame.draw.circle(self.screen, '#111111', boid_properties["rectangle"].center, 120, 0)
+            # Render spherical perception fields before boids
+            for boid_properties in boid_list:
+                try:
+                    pygame.draw.circle(self.screen, '#111111', boid_properties["rectangle"].center, self.settings["RADIUS"], 0)
+                except Exception as e:
+                    logging.error(f"{e}:No value found for RADIUS is config.")
 
-            for boid_properties in boid.renderable():
+            for boid_properties in boid_list:
                 self.screen.blit(boid_properties["surface"], boid_properties["rectangle"])
-                boid_list.append((boid_properties["rectangle"], boid_properties["rotation"]))
 
-            for i in range(len(boid_list)):
-                message_list.append(f"boid_{i}={boid_list[i][0].center}, {round(boid_list[i][1], 2)}")
-            message_list.append(f"boid_count={len(boid_list)}")
             message_list.append(f"mouse_pos={pygame.mouse.get_pos()}")
+            message_list.append(f"boid_count={len(boid_list)}")
+            for i in range(len(boid_list)):
+                message_list.append(f"boid_{i}={boid_list[i]['rectangle'].center}, {round(boid_list[i]['rotation'], 2)}")
 
             Debug(message_list, self.screen)
 
@@ -90,14 +91,14 @@ class Initialize:
                 logging.error(f"{e}: No FPS value in config found.")
                 sys.exit()
 
-    def parse_settings(self):
+    def parse_settings(self) -> dict[str, int | str]:
         # Get root directory by splitting __file__ at '/' twice and 
         # getting value at first index
-        root: str = __file__.rsplit("/", 2)[0]
+        root_dir: str = __file__.rsplit("/", 2)[0]
 
         options: dict = {}
 
-        with open(root + '/' + "settings.ini", "r") as settings_file:
+        with open(root_dir + '/' + "settings.ini", "r") as settings_file:
             lines_list: list = settings_file.read().split('\n')
 
             for line in lines_list:
@@ -113,7 +114,7 @@ class Initialize:
                            options[line.split('=')[0].strip()] = line.split('=')[1].strip()
         return options
 
-def main():
+def main() -> None:
     ...
 
 if __name__ == "__main__":
