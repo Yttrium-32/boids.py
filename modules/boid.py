@@ -4,18 +4,20 @@ import numpy as np
 from random import randint
 
 class Boid:
-    def __init__(self, settings: dict) -> None:
+    def __init__(self, settings: dict[str, str | int]) -> None:
         self.settings = settings
         try:
             boid_surface = pygame.image.load(settings["ICONPATH"])
             self.boid_surface = pygame.transform.scale(boid_surface, (50,50))
+        # TODO: Add a better system to check for missing config entries
         except KeyError:
             logging.error("No value for ICONPATH found in config.")
             sys.exit()
         self.boid_list: list[dict] = list()
         self.wrap = 0
             
-    def renderable(self):
+    def get_renderable(self):
+        boid_properties_list: list[dict] = list()
         for property_dict in self.boid_list:
             boid_rect: pygame.Rect = property_dict["rectangle"]
             boid_rotation = property_dict["rotation"]
@@ -29,7 +31,9 @@ class Boid:
                 "rotation": boid_rotation
             }
 
-            yield boid_properties
+            boid_properties_list.append(boid_properties)
+
+        return boid_properties_list
 
     def generate(self, coords: tuple[int, int]):
         boid_rotation = randint(0, 360)

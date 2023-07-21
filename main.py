@@ -1,6 +1,6 @@
 from modules.initialize import *
 
-def main():
+def main() -> None:
     simulation = Initialize()
     simulation.run()
 
