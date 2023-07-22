@@ -1,4 +1,5 @@
 import pygame, sys, logging
+import numpy as np
 from modules.debug import Debug
 from modules.boid import Boid
 
@@ -65,13 +66,10 @@ class Initialize:
             self.screen.fill("black")
 
             boid_list = boid.get_renderable()
+            boid_perception_fields = boid.get_perception_fields(boid_list)
 
-            # Render spherical perception fields before boids
-            for boid_properties in boid_list:
-                try:
-                    pygame.draw.circle(self.screen, '#111111', boid_properties["rectangle"].center, self.settings["RADIUS"], 0)
-                except Exception as e:
-                    logging.error(f"{e}:No value found for RADIUS is config.")
+            for entry in boid_perception_fields:
+                pygame.draw.circle(self.screen, entry["color"], entry["coords"], self.settings["RADIUS"])
 
             for boid_properties in boid_list:
                 self.screen.blit(boid_properties["surface"], boid_properties["rectangle"])
@@ -81,6 +79,7 @@ class Initialize:
             for i in range(len(boid_list)):
                 message_list.append(f"boid_{i}={boid_list[i]['rectangle'].center}, {round(boid_list[i]['rotation'], 2)}")
 
+            # Display all debug messages on the screen surface
             Debug(message_list, self.screen)
 
             pygame.display.update()

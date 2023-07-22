@@ -14,7 +14,7 @@ class Boid:
             logging.error("No value for ICONPATH found in config.")
             sys.exit()
         self.boid_list: list[dict] = list()
-        self.wrap = 0
+        self.wrap: bool = 0
             
     def get_renderable(self):
         boid_properties_list: list[dict] = list()
@@ -75,22 +75,22 @@ class Boid:
         # Since the rectangle doesn't perfectly align with the sprite
         if not self.wrap:
             # Screen wrap vertically
-            if new_rect.x >= self.settings["WIDTH"] :
-                new_rect.x -= self.settings["WIDTH"]
-                self.wrap = 1
-            if new_rect.x <= 0:
+            if new_rect.x >= self.settings["WIDTH"]:
+                new_rect.x -= self.settings["WIDTH"]  
+                self.wrap: bool = True
+            if new_rect.x <= 0 + 10:
                 new_rect.x = self.settings["WIDTH"]
-                self.wrap = 1
+                self.wrap: bool = True
 
             # Screen wrap horizontally
             if new_rect.y >= self.settings["HEIGHT"]:
                 new_rect.y -= self.settings["HEIGHT"]
-                self.wrap = 1
+                self.wrap: bool = True
             if new_rect.y <= 0:
                 new_rect.y = self.settings["HEIGHT"]
-                self.wrap = 1
+                self.wrap: bool = True
         else:
-            self.wrap = 0
+            self.wrap: bool = False
 
         return new_rect
 
@@ -120,6 +120,38 @@ class Boid:
 
     def update_settings(self, new_settings):
         self.settings = new_settings
+
+    def get_perception_fields(self, boid_list: list[dict]):
+        perception_field_list: dict[str, int] = []
+        for boid in boid_list:
+            perceived_boids_list: list[int] = list()
+            color = "#111111"
+            current_boid_index = boid_list.index(boid)
+
+            for other_boid in boid_list:
+
+                other_boid_index = boid_list.index(other_boid)
+                if other_boid_index != current_boid_index:
+
+                    current_boid_x = boid["rectangle"].x 
+                    current_boid_y = boid["rectangle"].y
+
+                    other_boid_x = other_boid["rectangle"].x
+                    other_boid_y = other_boid["rectangle"].y
+
+                    dist = np.sqrt((current_boid_x - other_boid_x) ** 2 + (current_boid_y - other_boid_y) ** 2)
+                    
+                    if dist < self.settings["RADIUS"]:
+                        perceived_boids_list.append(other_boid_index)
+
+            if perceived_boids_list != []:
+                color = "#F33329"
+
+            perception_field_list.append({"coords": boid["rectangle"].center, "color": color, "perceived": perceived_boids_list})
+
+        return perception_field_list
+            
+
 
     @classmethod
     def calculate_distance(cls, speed, coords, angle) -> tuple[int, int]:
