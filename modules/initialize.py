@@ -1,5 +1,4 @@
 import pygame, sys, logging
-import numpy as np
 from modules.debug import Debug
 from modules.boid import Boid
 
@@ -7,12 +6,9 @@ class Initialize:
     def __init__(self) -> None:
         pygame.init()
         self.settings: dict[str, str| int] = self.parse_settings()
+        self.validate_settings()
         
-        try:
-            self.screen = pygame.display.set_mode((self.settings['WIDTH'],self.settings['HEIGHT'])) 
-        except KeyError as e:
-            logging.error(f"{e}: No value for HEIGHT or WIDTH in config found.")
-            sys.exit()
+        self.screen = pygame.display.set_mode((self.settings['WIDTH'],self.settings['HEIGHT'])) 
 
         self.clock = pygame.time.Clock()
         pygame.display.set_caption("Boid Simulation")
@@ -58,6 +54,7 @@ class Initialize:
                 # Values are realoaded every 2 seconds
                 if event.type == reload_config_timer:
                     self.settings: dict[str, str| int] = self.parse_settings()
+                    self.validate_settings()
                     boid.update_settings(self.settings)
 
             # Debug Messages
@@ -112,6 +109,13 @@ class Initialize:
                         except ValueError:
                            options[line.split('=')[0].strip()] = line.split('=')[1].strip()
         return options
+
+    def validate_settings(self):
+        valid_settings: list[str] = ["HEIGHT", "WIDTH", "FPS", "RADIUS", "SPEED", "ICONPATH", "FOLLOW_MOUSE"]
+        for value in valid_settings:
+            if value not in self.settings.keys():
+                print(f"{value} not found in settings.ini")
+                sys.exit()
 
 def main() -> None:
     ...

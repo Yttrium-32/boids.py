@@ -6,13 +6,8 @@ from random import randint
 class Boid:
     def __init__(self, settings: dict[str, str | int]) -> None:
         self.settings = settings
-        try:
-            boid_surface = pygame.image.load(settings["ICONPATH"])
-            self.boid_surface = pygame.transform.scale(boid_surface, (50,50))
-        # TODO: Add a better system to check for missing config entries
-        except KeyError:
-            logging.error("No value for ICONPATH found in config.")
-            sys.exit()
+        boid_surface = pygame.image.load(settings["ICONPATH"])
+        self.boid_surface = pygame.transform.scale(boid_surface, (50,50))
         self.boid_list: list[dict] = list()
         self.wrap: bool = 0
             
@@ -43,14 +38,10 @@ class Boid:
     def update_properties(self, mouse_pos: list[int, int]):
         for i in range(len(self.boid_list)):
             # Changing angle of each boid in boid_list
-            try:
-                if self.settings["FOLLOW_MOUSE"]:
-                    angle = self.calculate_rotation(mouse_pos, self.boid_list[i]["rectangle"].center)
-                else: 
-                    angle = self.boid_list[i]["rotation"]
-            except Exception as e:
-                logging.error(f"{e}: No value for FOLLOW_MOUSE found in config.")
-                sys.exit()
+            if self.settings["FOLLOW_MOUSE"]:
+                angle = self.calculate_rotation(mouse_pos, self.boid_list[i]["rectangle"].center)
+            else: 
+                angle = self.boid_list[i]["rotation"]
 
             self.boid_list[i]["rotation"] = angle
             if self.boid_list[i]["rotation"] >= 360:
@@ -63,22 +54,16 @@ class Boid:
     def calculate_new_rect(self, current_rect: pygame.Rect, angle: int):
         new_rect: pygame.Rect = current_rect
         center_coords = current_rect.center
-        try:
-            new_coords = self.calculate_distance(self.settings["SPEED"], center_coords, angle)
-        except KeyError:
-            logging.error("Value for SPEED not defined in config.")
-            sys.exit()
+        new_coords = calculate_distance(self.settings["SPEED"], center_coords, angle)
         new_rect.center: tuple[int, int] = new_coords
 
         # Screen wrap implementation
-        # The -10 and +30 is to ensure the rectangle is loaded and unloaded off screen
-        # Since the rectangle doesn't perfectly align with the sprite
         if not self.wrap:
             # Screen wrap vertically
             if new_rect.x >= self.settings["WIDTH"]:
                 new_rect.x -= self.settings["WIDTH"]  
                 self.wrap: bool = True
-            if new_rect.x <= 0 + 10:
+            if new_rect.x <= 0:
                 new_rect.x = self.settings["WIDTH"]
                 self.wrap: bool = True
 
@@ -153,10 +138,9 @@ class Boid:
             
 
 
-    @classmethod
-    def calculate_distance(cls, speed, coords, angle) -> tuple[int, int]:
-        rad_angle = np.radians(angle)
-        new_x = coords[0] + (speed * np.cos(rad_angle))
-        new_y = coords[1] - (speed * np.sin(rad_angle))
-        return new_x, new_y
+def calculate_distance(speed, coords, angle) -> tuple[int, int]:
+    rad_angle = np.radians(angle)
+    new_x = coords[0] + (speed * np.cos(rad_angle))
+    new_y = coords[1] - (speed * np.sin(rad_angle))
+    return new_x, new_y
 

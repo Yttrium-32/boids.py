@@ -14,9 +14,8 @@ class Debug:
         for debug_message in message_list:
             debug_count += 1
 
-            for _  in range(debug_count):
+            for _ in range(debug_count):
                 message_coords = [Debug.default_message_coords[0], Debug.default_message_coords[1] * debug_count * 10]
-            print(f"{message_coords=}")
 
             message_surface = font.render(text=debug_message, fgcolor="white", bgcolor="black")
             screen.blit(message_surface[0], message_coords)
