@@ -34,19 +34,23 @@ class Boid:
         boid_rect = self.boid_surface.get_rect(center = coords)
         self.boid_list.append({"rectangle": boid_rect, "rotation": boid_rotation, "coords": coords})
 
-    def update_properties(self, mouse_pos: list[int, int]):
-        for i in range(len(self.boid_list)):
+    def update_properties(self):
+        for boid_index in range(len(self.boid_list)):
 
             # Changing angle of each boid in boid_list
-            angle = self.boid_list[i]["rotation"]
+            angle = self.boid_list[boid_index]["rotation"]
 
-            self.boid_list[i]["rotation"] = angle
-            if self.boid_list[i]["rotation"] >= 360:
-                self.boid_list[i]["rotation"] = self.boid_list[i]["rotation"] - 360
+            steering_angle = self.align(boid_index)
+            angle += steering_angle
 
-            current_rect = self.boid_list[i]["rectangle"]
+            self.boid_list[boid_index]["rotation"] = angle
+            if self.boid_list[boid_index]["rotation"] >= 360:
+                self.boid_list[boid_index]["rotation"] = self.boid_list[boid_index]["rotation"] - 360
 
-            self.boid_list[i]["rectangle"] = self.calculate_new_rect(current_rect, angle)
+            current_rect = self.boid_list[boid_index]["rectangle"]
+
+            self.boid_list[boid_index]["rectangle"] = self.calculate_new_rect(current_rect, angle)
+            self.boid_list[boid_index]["coords"] = self.boid_list[boid_index]["rectangle"].center
 
     def calculate_new_rect(self, current_rect: pygame.Rect, angle: int):
         new_rect: pygame.Rect = current_rect
@@ -75,33 +79,6 @@ class Boid:
             self.wrap: bool = False
 
         return new_rect
-
-    def calculate_rotation(self, mouse_pos: list[int, int], boid_pos: list[int, int]) -> int:
-        mouse_vector = np.array(mouse_pos) # Vector of mouse coords
-        boid_vector = np.array(boid_pos) # Vector of boid coords
-
-        # if the position of the mouse and boid coincide the sprite does not render
-        # This doesn't really ever happen except for a split second when the boid is created
-        # To prevent this from happening we simply don't calculate a new vector
-        if boid_vector[0] != mouse_vector[0] or boid_vector[1] != mouse_vector[1] :
-            final_vector = np.add(boid_vector, -mouse_vector)
-        else:
-            final_vector = boid_vector
-
-        x_axis = np.array([1,0])
-        dot_product = np.dot(final_vector, x_axis)
-        cosine_of_angle = dot_product / np.linalg.norm(final_vector)
-        angle_radian = np.arccos(cosine_of_angle)
-
-        final_rotation = 180 + round(np.degrees(angle_radian),2)
-
-        if mouse_vector[1] < boid_vector[1]:
-            return 360 - final_rotation
-        else:
-            return final_rotation
-
-    def update_settings(self, new_settings):
-        self.settings = new_settings
 
     def get_perception_fields(self):
         perception_field_list: dict[str, int] = []
@@ -132,6 +109,33 @@ class Boid:
             perception_field_list.append({"coords": boid["rectangle"].center, "color": color, "perceived": perceived_boids_list})
 
         return perception_field_list
+
+    def align(self, boid_index: int):
+        perception_field_list = self.get_perception_fields()
+        perceived_boids: list[int] = []
+        for field in perception_field_list:
+            print(f"{field['coords']=}")
+            print(f"{self.boid_list[boid_index]['coords']=}")
+            if field["coords"] == self.boid_list[boid_index]["coords"]:
+                print("-----------------------EQUAL-----------------------")
+                perceived_boids = field["perceived"]
+
+        sum_of_angles: int = 0
+        for index in perceived_boids:
+            angle = self.boid_list[index]["rotation"]
+            sum_of_angles += self.boid_list[index]["rotation"]
+
+        if sum_of_angles > 0:
+            average_angle = sum_of_angles / len(self.boid_list[index])
+            current_angle = self.boid_list[boid_index]["rotation"]
+            steering_angle = average_angle - current_angle
+        else: steering_angle = 0
+
+        return steering_angle
+
+    def update_settings(self, new_settings):
+        self.settings = new_settings
+
 
 def calculate_distance(speed, coords, angle) -> tuple[int, int]:
     rad_angle = np.radians(angle)

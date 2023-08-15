@@ -48,7 +48,7 @@ class Initialize:
                 # Update boid properties everytime update_boid_timer is triggered
                 # that is boid properties are updated every 100 miliseconds
                 if event.type == update_boid_timer:
-                    boid.update_properties(pygame.mouse.get_pos())
+                    boid.update_properties()
 
                 # Reload settings values everytime reload_config_timer is triggered
                 # Values are realoaded every 2 seconds
