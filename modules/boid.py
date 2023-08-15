@@ -114,15 +114,11 @@ class Boid:
         perception_field_list = self.get_perception_fields()
         perceived_boids: list[int] = []
         for field in perception_field_list:
-            print(f"{field['coords']=}")
-            print(f"{self.boid_list[boid_index]['coords']=}")
             if field["coords"] == self.boid_list[boid_index]["coords"]:
-                print("-----------------------EQUAL-----------------------")
                 perceived_boids = field["perceived"]
 
         sum_of_angles: int = 0
         for index in perceived_boids:
-            angle = self.boid_list[index]["rotation"]
             sum_of_angles += self.boid_list[index]["rotation"]
 
         if sum_of_angles > 0:
