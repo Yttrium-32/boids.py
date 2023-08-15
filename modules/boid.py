@@ -1,4 +1,3 @@
-import sys, logging
 import pygame
 import numpy as np
 from random import randint
@@ -33,15 +32,13 @@ class Boid:
     def generate(self, coords: tuple[int, int]):
         boid_rotation = randint(0, 360)
         boid_rect = self.boid_surface.get_rect(center = coords)
-        self.boid_list.append({ "rectangle": boid_rect, "rotation": boid_rotation, "coords": coords })
+        self.boid_list.append({"rectangle": boid_rect, "rotation": boid_rotation, "coords": coords})
 
     def update_properties(self, mouse_pos: list[int, int]):
         for i in range(len(self.boid_list)):
+
             # Changing angle of each boid in boid_list
-            if self.settings["FOLLOW_MOUSE"]:
-                angle = self.calculate_rotation(mouse_pos, self.boid_list[i]["rectangle"].center)
-            else: 
-                angle = self.boid_list[i]["rotation"]
+            angle = self.boid_list[i]["rotation"]
 
             self.boid_list[i]["rotation"] = angle
             if self.boid_list[i]["rotation"] >= 360:
@@ -106,16 +103,16 @@ class Boid:
     def update_settings(self, new_settings):
         self.settings = new_settings
 
-    def get_perception_fields(self, boid_list: list[dict]):
+    def get_perception_fields(self):
         perception_field_list: dict[str, int] = []
-        for boid in boid_list:
+        for boid in self.boid_list:
             perceived_boids_list: list[int] = list()
             color = "#111111"
-            current_boid_index = boid_list.index(boid)
+            current_boid_index = self.boid_list.index(boid)
 
-            for other_boid in boid_list:
+            for other_boid in self.boid_list:
 
-                other_boid_index = boid_list.index(other_boid)
+                other_boid_index = self.boid_list.index(other_boid)
                 if other_boid_index != current_boid_index:
 
                     current_boid_x = boid["rectangle"].x 
@@ -135,8 +132,6 @@ class Boid:
             perception_field_list.append({"coords": boid["rectangle"].center, "color": color, "perceived": perceived_boids_list})
 
         return perception_field_list
-            
-
 
 def calculate_distance(speed, coords, angle) -> tuple[int, int]:
     rad_angle = np.radians(angle)

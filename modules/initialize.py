@@ -1,4 +1,4 @@
-import pygame, sys, logging
+import pygame, sys
 from modules.debug import Debug
 from modules.boid import Boid
 
@@ -63,7 +63,7 @@ class Initialize:
             self.screen.fill("black")
 
             boid_list = boid.get_renderable()
-            boid_perception_fields = boid.get_perception_fields(boid_list)
+            boid_perception_fields = boid.get_perception_fields()
 
             for entry in boid_perception_fields:
                 pygame.draw.circle(self.screen, entry["color"], entry["coords"], self.settings["RADIUS"])
@@ -81,11 +81,7 @@ class Initialize:
 
             pygame.display.update()
 
-            try:
-                self.clock.tick(self.settings['FPS'])
-            except KeyError as e:
-                logging.error(f"{e}: No FPS value in config found.")
-                sys.exit()
+            self.clock.tick(self.settings['FPS'])
 
     def parse_settings(self) -> dict[str, int | str]:
         # Get root directory by splitting __file__ at '/' twice and 
@@ -94,6 +90,7 @@ class Initialize:
 
         options: dict = {}
 
+        # TODO: Hardcode default settings file
         with open(root_dir + '/' + "settings.ini", "r") as settings_file:
             lines_list: list = settings_file.read().split('\n')
 
@@ -111,7 +108,7 @@ class Initialize:
         return options
 
     def validate_settings(self):
-        valid_settings: list[str] = ["HEIGHT", "WIDTH", "FPS", "RADIUS", "SPEED", "ICONPATH", "FOLLOW_MOUSE"]
+        valid_settings: list[str] = ["HEIGHT", "WIDTH", "FPS", "RADIUS", "SPEED", "ICONPATH"]
         for value in valid_settings:
             if value not in self.settings.keys():
                 print(f"{value} not found in settings.ini")
