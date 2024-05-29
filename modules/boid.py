@@ -29,8 +29,7 @@ class Boid:
 
             avg_velocity /= len(local_flock)
 
-            steering_force = avg_velocity - self.velocity
-            self.acceleration = steering_force # Since mass of all boids is 1
+            self.velocity = avg_velocity.normalize() * self.velocity.length()
 
     def draw(self, screen: pygame.Surface):
         pygame.draw.circle(screen, "white", self.position, 5)
