@@ -1,6 +1,6 @@
 import pygame
 from pygame.math import Vector2
-from random import uniform
+from random import uniform, choice
 
 from typing import Self
 
@@ -11,7 +11,7 @@ class Boid:
                      uniform(0, window_size_y))
         self.position = Vector2(*start_pos)
 
-        self.velocity = Vector2(uniform(-0.5, 0.5), uniform(-0.5, 0.5))
+        self.velocity = Vector2(choice((-2, 2)), choice((-2, 2)))
         self.acceleration = Vector2()
         self.perception = perception
 
@@ -21,7 +21,7 @@ class Boid:
             if self != boid and self.position.distance_to(boid.position) < self.perception:
                 local_flock.append(boid)
 
-        # Only align boid if other boids are in it's perception
+        # Only align boid if other boids are in its perception
         if local_flock:
             avg_velocity = Vector2()
             for other_boid in local_flock:
@@ -31,6 +31,11 @@ class Boid:
 
             steering_force = avg_velocity - self.velocity
             self.acceleration = steering_force # Since mass of all boids is 1
+
+            # Set the magnitude of the velocity back to the same value
+            self.velocity = self.velocity.normalize() * 2
+
+            # self.velocity.move_towards(avg_velocity, self.velocity.magnitude())
 
     def draw(self, screen: pygame.Surface):
         pygame.draw.circle(screen, "white", self.position, 5)
