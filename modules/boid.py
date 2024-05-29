@@ -11,7 +11,7 @@ class Boid:
                      uniform(0, window_size_y))
         self.position = Vector2(*start_pos)
 
-        self.velocity = Vector2(uniform(-0.5, 0.5), uniform(-0.5, 0.5))
+        self.velocity = Vector2(uniform(-2, 2), uniform(-2, 2))
         self.acceleration = Vector2()
         self.perception = perception
 
@@ -29,7 +29,9 @@ class Boid:
 
             avg_velocity /= len(local_flock)
 
-            self.velocity = avg_velocity.normalize() * self.velocity.length()
+            interpolated_distance = self.velocity.normalize().lerp(avg_velocity.normalize(), 0.5)
+
+            self.velocity = interpolated_distance * self.velocity.length()
 
     def wrap(self):
         window_size_x, window_size_y = pygame.display.get_window_size()
