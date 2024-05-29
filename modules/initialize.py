@@ -25,10 +25,8 @@ class Initialize:
 
             self.screen.fill("black")
 
-            screen_middle = (self.settings['WIDTH'] / 2,
-                             self.settings['HEIGHT'] / 2)
-
-            boid.draw(self.screen, screen_middle)
+            boid.draw(self.screen)
+            boid.update()
 
             pygame.display.update()
 

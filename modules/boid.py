@@ -1,11 +1,18 @@
 import pygame
 from pygame.math import Vector2
+from random import randint
 
 class Boid:
     def __init__(self) -> None:
-        self.position = Vector2
-        self.velocity = Vector2
-        self.acceleration = Vector2
+        window_size_x, window_size_y = pygame.display.get_window_size()
+        self.position = Vector2(window_size_x / 2, window_size_y / 2)
 
-    def draw(self, screen: pygame.Surface, coord: tuple[int, int] = (0, 0)):
-        pygame.draw.rect(screen, "white", (*coord, 50, 50))
+        self.velocity = Vector2(randint(-10, 10), randint(-10, 10))
+        self.acceleration = Vector2()
+
+    def draw(self, screen: pygame.Surface):
+        pygame.draw.rect(screen, "white", (*self.position, 50, 50))
+
+    def update(self):
+        self.position += self.velocity
+        self.velocity += self.acceleration
