@@ -27,11 +27,7 @@ class Boid:
             for other_boid in local_flock:
                 avg_velocity += other_boid.velocity
 
-            try:
-                avg_velocity /= len(local_flock)
-            except ZeroDivisionError:
-                # If the only boid in the local_flock is self, don't update avg_velocity
-                ...
+            avg_velocity /= len(local_flock)
 
             steering_force = avg_velocity - self.velocity
             self.acceleration = steering_force # Since mass of all boids is 1
