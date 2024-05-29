@@ -5,7 +5,7 @@ from random import uniform
 from typing import Self
 
 class Boid:
-    def __init__(self, perception: int = 20) -> None:
+    def __init__(self, perception: int = 50) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
         start_pos = (uniform(0, window_size_x),
                      uniform(0, window_size_y))
@@ -16,22 +16,27 @@ class Boid:
         self.perception = perception
 
     def align(self, flock: list[Self]):
+        avg_velocity = self.get_avg_velocity(flock)
+
+        if avg_velocity.magnitude() != 0:
+            interpolated_distance = self.velocity.normalize().lerp(avg_velocity.normalize(), 0.5)
+            self.velocity = interpolated_distance * self.velocity.length()
+
+    def get_avg_velocity(self, flock: list[Self]):
         local_flock = []
         for boid in flock:
             if self != boid and self.position.distance_to(boid.position) < self.perception:
                 local_flock.append(boid)
 
-        # Only align boid if other boids are in it's perception
+        # Only calc avg_velocity if other boids are in perception radius
+        avg_velocity = Vector2()
         if local_flock:
-            avg_velocity = Vector2()
             for other_boid in local_flock:
                 avg_velocity += other_boid.velocity
 
             avg_velocity /= len(local_flock)
 
-            interpolated_distance = self.velocity.normalize().lerp(avg_velocity.normalize(), 0.5)
-
-            self.velocity = interpolated_distance * self.velocity.length()
+        return avg_velocity
 
     def wrap(self):
         window_size_x, window_size_y = pygame.display.get_window_size()
