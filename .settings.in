@@ -1,0 +1,12 @@
+[Settings]
+
+HEIGHT = 600
+WIDTH = 1050
+FPS = 60
+
+SPEED = 25
+RADIUS = 120
+
+ICONPATH = graphics/Icon.png
+
+FOLLOW_MOUSE = 0
