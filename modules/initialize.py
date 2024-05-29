@@ -31,6 +31,7 @@ class Initialize:
             for boid in flock:
                 boid.update()
                 boid.align(flock)
+                boid.wrap()
 
             self.screen.fill("black")
 
