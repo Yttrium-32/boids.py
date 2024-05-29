@@ -15,9 +15,7 @@ class Boid:
         self.acceleration = Vector2()
         self.perception = perception
 
-    def align(self, flock: list[Self]):
-        avg_velocity = self.get_avg_velocity(flock)
-
+    def align(self, avg_velocity: Vector2):
         if avg_velocity.magnitude() != 0:
             interpolated_distance = self.velocity.normalize().lerp(avg_velocity.normalize(), 0.5)
             self.velocity = interpolated_distance * self.velocity.length()
@@ -53,7 +51,11 @@ class Boid:
     def draw(self, screen: pygame.Surface):
         pygame.draw.circle(screen, "white", self.position, 5)
 
-    def update(self):
+    def update(self, flock: list[Self]):
         self.position += self.velocity
         self.velocity += self.acceleration
+
+        avg_velocity = self.get_avg_velocity(flock)
+        self.align(avg_velocity)
+        self.wrap()
 

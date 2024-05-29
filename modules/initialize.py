@@ -29,9 +29,7 @@ class Initialize:
 
             # Update all boids before doing any rendering
             for boid in flock:
-                boid.update()
-                boid.align(flock)
-                boid.wrap()
+                boid.update(flock)
 
             self.screen.fill("black")
 
