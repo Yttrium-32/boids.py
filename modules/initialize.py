@@ -15,7 +15,11 @@ class Initialize:
         pygame.display.set_icon(boid_icon)
 
     def run(self):
-        boid = Boid()
+        flock = [] # list of boids
+        flock_size = 50
+        for _ in range(flock_size):
+            boid = Boid()
+            flock.append(boid)
 
         # Main rendering loop
         while True:
@@ -23,10 +27,15 @@ class Initialize:
                 if event.type == pygame.QUIT:
                     sys.exit()
 
+            # Update all boids before doing any rendering
+            for boid in flock:
+                boid.update()
+
             self.screen.fill("black")
 
-            boid.draw(self.screen)
-            boid.update()
+            # Render all boids
+            for boid in flock:
+                boid.draw(self.screen)
 
             pygame.display.update()
 
