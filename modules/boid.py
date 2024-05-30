@@ -5,6 +5,9 @@ from random import uniform, choice
 from typing import Self
 
 class Boid:
+    steering_force = 0.5
+    non_perceived_angle = 30
+
     def __init__(self, perception: int = 30) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
         start_pos = (uniform(0, window_size_x),
@@ -15,14 +18,13 @@ class Boid:
         self.acceleration = Vector2()
         self.perception = perception
 
-        self.steering_force = 0.5
         self.steering_vectors = []
 
     def get_avg_velocity(self, flock: list[Self]):
         local_flock = []
         for boid in flock:
-            behind_boid = self.velocity.angle_to(boid.velocity) < 30 \
-                          or self.velocity.angle_to(boid.velocity) > 330
+            behind_boid = self.velocity.angle_to(boid.velocity) < Boid.non_perceived_angle \
+                          or self.velocity.angle_to(boid.velocity) > 360 - Boid.non_perceived_angle
             perceived = self != boid \
                         and self.position.distance_to(boid.position) < self.perception \
                         and behind_boid
@@ -78,7 +80,7 @@ class Boid:
             average_steering_vector /= len(self.steering_vectors)
 
             interpolated_distance = self.velocity.normalize()\
-                    .lerp(average_steering_vector.normalize(), self.steering_force)
+                    .lerp(average_steering_vector.normalize(), Boid.steering_force)
             self.velocity = interpolated_distance * self.velocity.length()
 
         self.wrap()
