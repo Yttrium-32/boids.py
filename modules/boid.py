@@ -5,7 +5,7 @@ from random import uniform
 from typing import Self
 
 class Boid:
-    def __init__(self, perception: int = 50) -> None:
+    def __init__(self, perception: int = 10) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
         start_pos = (uniform(0, window_size_x),
                      uniform(0, window_size_y))
@@ -14,11 +14,7 @@ class Boid:
         self.velocity = Vector2(uniform(-2, 2), uniform(-2, 2))
         self.acceleration = Vector2()
         self.perception = perception
-
-    def align(self, avg_velocity: Vector2):
-        if avg_velocity.magnitude() != 0:
-            interpolated_distance = self.velocity.normalize().lerp(avg_velocity.normalize(), 0.5)
-            self.velocity = interpolated_distance * self.velocity.length()
+        self.steering_force = 1
 
     def get_avg_velocity(self, flock: list[Self]):
         local_flock = []
@@ -35,6 +31,19 @@ class Boid:
             avg_velocity /= len(local_flock)
 
         return avg_velocity
+
+    def align(self, avg_velocity: Vector2):
+        if avg_velocity.magnitude() != 0:
+            interpolated_distance = self.velocity.normalize()\
+                    .lerp(avg_velocity.normalize(), self.steering_force)
+            self.velocity = interpolated_distance * self.velocity.length()
+
+    def cohesion(self, avg_velocity: Vector2):
+        if avg_velocity.magnitude() != 0:
+            avg_velocity -= self.position
+            interpolated_distance = self.velocity.normalize()\
+                    .lerp(avg_velocity.normalize(), self.steering_force)
+            self.velocity = interpolated_distance * self.velocity.length()
 
     def wrap(self):
         window_size_x, window_size_y = pygame.display.get_window_size()
