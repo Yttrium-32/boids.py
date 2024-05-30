@@ -14,7 +14,7 @@ class Boid:
         self.velocity = Vector2(uniform(-2, 2), uniform(-2, 2))
         self.acceleration = Vector2()
         self.perception = perception
-        self.steering_force = 1
+        self.steering_force = 0.5
 
     def get_avg_velocity(self, flock: list[Self]):
         local_flock = []
