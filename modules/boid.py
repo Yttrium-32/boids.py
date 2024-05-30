@@ -20,7 +20,7 @@ class Boid:
 
         self.steering_vectors = []
 
-    def get_avg_velocity(self, flock: list[Self]):
+    def find_local_flock(self, flock: list[Self]):
         local_flock = []
         for boid in flock:
             behind_boid = self.velocity.angle_to(boid.velocity) < Boid.non_perceived_angle \
@@ -30,6 +30,10 @@ class Boid:
                         and behind_boid
             if perceived:
                 local_flock.append(boid)
+
+        return local_flock
+
+    def get_avg_velocity(self, local_flock: list[Self]):
 
         # Only calc avg_velocity if other boids are in perception radius
         avg_velocity = Vector2()
@@ -66,7 +70,8 @@ class Boid:
         self.position += self.velocity
         self.velocity += self.acceleration
 
-        avg_velocity = self.get_avg_velocity(flock)
+        local_flock = self.find_local_flock(flock)
+        avg_velocity = self.get_avg_velocity(local_flock)
 
         # The three rules
         self.align(avg_velocity)
@@ -79,7 +84,7 @@ class Boid:
                 average_steering_vector += vec
             average_steering_vector /= len(self.steering_vectors)
 
-            interpolated_distance = self.velocity.normalize()\
+            interpolated_distance = self.velocity.normalize() \
                     .lerp(average_steering_vector.normalize(), Boid.steering_force)
             self.velocity = interpolated_distance * self.velocity.length()
 
