@@ -14,7 +14,9 @@ class Boid:
         self.velocity = Vector2(uniform(-2, 2), uniform(-2, 2))
         self.acceleration = Vector2()
         self.perception = perception
+
         self.steering_force = 0.5
+        self.steering_vectors = []
 
     def get_avg_velocity(self, flock: list[Self]):
         local_flock = []
@@ -34,16 +36,12 @@ class Boid:
 
     def align(self, avg_velocity: Vector2):
         if avg_velocity.magnitude() != 0:
-            interpolated_distance = self.velocity.normalize()\
-                    .lerp(avg_velocity.normalize(), self.steering_force)
-            self.velocity = interpolated_distance * self.velocity.length()
+            self.steering_vectors.append(avg_velocity.normalize())
 
     def cohesion(self, avg_velocity: Vector2):
         if avg_velocity.magnitude() != 0:
             avg_velocity -= self.position
-            interpolated_distance = self.velocity.normalize()\
-                    .lerp(avg_velocity.normalize(), self.steering_force)
-            self.velocity = interpolated_distance * self.velocity.length()
+            self.steering_vectors.append(avg_velocity.normalize())
 
     def wrap(self):
         window_size_x, window_size_y = pygame.display.get_window_size()
@@ -57,14 +55,29 @@ class Boid:
         elif self.position.y < 0:
             self.position.y += window_size_y
 
-    def draw(self, screen: pygame.Surface):
-        pygame.draw.circle(screen, "white", self.position, 5)
-
     def update(self, flock: list[Self]):
         self.position += self.velocity
         self.velocity += self.acceleration
 
         avg_velocity = self.get_avg_velocity(flock)
+
+        # The three rules
         self.align(avg_velocity)
+        self.cohesion(avg_velocity)
+
+        # Only steer boid if steering vectors exist
+        if self.steering_vectors:
+            average_steering_vector = Vector2()
+            for vec in self.steering_vectors:
+                average_steering_vector += vec
+            average_steering_vector /= len(self.steering_vectors)
+
+            interpolated_distance = self.velocity.normalize()\
+                    .lerp(average_steering_vector.normalize(), self.steering_force)
+            self.velocity = interpolated_distance * self.velocity.length()
+
         self.wrap()
+
+    def draw(self, screen: pygame.Surface):
+        pygame.draw.circle(screen, "white", self.position, 5)
 
