@@ -1,17 +1,17 @@
 import pygame
 from pygame.math import Vector2
-from random import uniform
+from random import uniform, choice
 
 from typing import Self
 
 class Boid:
-    def __init__(self, perception: int = 10) -> None:
+    def __init__(self, perception: int = 30) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
         start_pos = (uniform(0, window_size_x),
                      uniform(0, window_size_y))
         self.position = Vector2(*start_pos)
 
-        self.velocity = Vector2(uniform(-2, 2), uniform(-2, 2))
+        self.velocity = Vector2(choice([-3, 3]), choice([-3, 3]))
         self.acceleration = Vector2()
         self.perception = perception
 
@@ -21,7 +21,12 @@ class Boid:
     def get_avg_velocity(self, flock: list[Self]):
         local_flock = []
         for boid in flock:
-            if self != boid and self.position.distance_to(boid.position) < self.perception:
+            behind_boid = self.velocity.angle_to(boid.velocity) < 30 \
+                          or self.velocity.angle_to(boid.velocity) > 330
+            perceived = self != boid \
+                        and self.position.distance_to(boid.position) < self.perception \
+                        and behind_boid
+            if perceived:
                 local_flock.append(boid)
 
         # Only calc avg_velocity if other boids are in perception radius
