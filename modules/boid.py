@@ -1,14 +1,15 @@
 import pygame
 from pygame.math import Vector2
-from random import uniform, choice
 
+from random import uniform, choice
 from typing import Self
 
 class Boid:
     steering_force = 0.5
     non_perceived_angle = 30
+    perception = 50
 
-    def __init__(self, perception: int = 30) -> None:
+    def __init__(self) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
         start_pos = (uniform(0, window_size_x),
                      uniform(0, window_size_y))
@@ -16,7 +17,6 @@ class Boid:
 
         self.velocity = Vector2(choice([-3, 3]), choice([-3, 3]))
         self.acceleration = Vector2()
-        self.perception = perception
 
         self.steering_vectors = []
 
@@ -26,7 +26,7 @@ class Boid:
             behind_boid = self.velocity.angle_to(boid.velocity) < Boid.non_perceived_angle \
                           or self.velocity.angle_to(boid.velocity) > 360 - Boid.non_perceived_angle
             perceived = self != boid \
-                        and self.position.distance_to(boid.position) < self.perception \
+                        and self.position.distance_to(boid.position) < Boid.perception \
                         and behind_boid
             if perceived:
                 local_flock.append(boid)
@@ -54,6 +54,12 @@ class Boid:
             avg_velocity -= self.position
             self.steering_vectors.append(avg_velocity.normalize())
 
+    def separation(self, local_flock: list[Self]):
+        # if local_flock:
+            # for other_boid in local_flock:
+                # distance = 
+        pass
+
     def wrap(self):
         window_size_x, window_size_y = pygame.display.get_window_size()
         if self.position.x > window_size_x:
@@ -76,6 +82,7 @@ class Boid:
         # The three rules
         self.align(avg_velocity)
         self.cohesion(avg_velocity)
+        self.separation(local_flock)
 
         # Only steer boid if steering vectors exist
         if self.steering_vectors:
