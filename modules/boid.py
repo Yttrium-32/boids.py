@@ -5,20 +5,21 @@ from random import uniform, choice
 from typing import Self
 
 class Boid:
-    steering_force = 0.5
-    non_perceived_angle = 30
-    perception = 50
+    steering_force = 1
+    non_perceived_angle = 60
+    perception = 10
 
     def __init__(self) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
         start_pos = (uniform(0, window_size_x),
                      uniform(0, window_size_y))
+
         self.position = Vector2(*start_pos)
 
         self.velocity = Vector2(choice([-3, 3]), choice([-3, 3]))
         self.acceleration = Vector2()
 
-        self.steering_vectors = []
+        self.steering_vectors: list[Vector2] = []
 
     def find_local_flock(self, flock: list[Self]):
         local_flock = []
@@ -55,10 +56,15 @@ class Boid:
             self.steering_vectors.append(avg_velocity.normalize())
 
     def separation(self, local_flock: list[Self]):
-        # if local_flock:
-            # for other_boid in local_flock:
-                # distance = 
-        pass
+        if local_flock:
+            for other_boid in local_flock:
+                distance = self.position.distance_to(other_boid.position)
+                diff_vec = self.position - other_boid.position
+
+                # Higher distance results in a smaller seperation vector
+                # i.e. separation vector is inversly proportional to distance
+                seperation_vec = diff_vec / distance
+                self.steering_vectors.append(seperation_vec)
 
     def wrap(self):
         window_size_x, window_size_y = pygame.display.get_window_size()
@@ -84,7 +90,7 @@ class Boid:
         self.cohesion(avg_velocity)
         self.separation(local_flock)
 
-        # Only steer boid if steering vectors exist
+        # Only steer boid if steering vectors is not empty
         if self.steering_vectors:
             average_steering_vector = Vector2()
             for vec in self.steering_vectors:
