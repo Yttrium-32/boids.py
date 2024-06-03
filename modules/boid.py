@@ -35,9 +35,9 @@ class Boid:
         return local_flock
 
     def get_avg_velocity(self, local_flock: list[Self]):
+        avg_velocity = Vector2()
 
         # Only calc avg_velocity if other boids are in perception radius
-        avg_velocity = Vector2()
         if local_flock:
             for other_boid in local_flock:
                 avg_velocity += other_boid.velocity
@@ -56,15 +56,19 @@ class Boid:
             self.steering_vectors.append(avg_velocity.normalize())
 
     def separation(self, local_flock: list[Self]):
-        if local_flock:
-            for other_boid in local_flock:
-                distance = self.position.distance_to(other_boid.position)
-                diff_vec = self.position - other_boid.position
 
-                # Higher distance results in a smaller seperation vector
-                # i.e. separation vector is inversly proportional to distance
-                seperation_vec = diff_vec / distance
-                self.steering_vectors.append(seperation_vec)
+        # Only seperate if a local flock exists
+        if not local_flock:
+            return
+
+        for other_boid in local_flock:
+            distance = self.position.distance_to(other_boid.position)
+            diff_vec = self.position - other_boid.position
+
+            # Higher distance results in a smaller seperation vector
+            # i.e. separation vector is inversly proportional to distance
+            seperation_vec = diff_vec / distance
+            self.steering_vectors.append(seperation_vec)
 
     def wrap(self):
         window_size_x, window_size_y = pygame.display.get_window_size()
