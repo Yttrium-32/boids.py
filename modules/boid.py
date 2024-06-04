@@ -7,6 +7,7 @@ from typing import Self
 class Boid:
     non_perceived_angle = 60
     perception = 50
+    max_vec_val = 3
 
     def __init__(self) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
@@ -15,7 +16,8 @@ class Boid:
 
         self.position = Vector2(*start_pos)
 
-        self.velocity = Vector2(uniform(0, 3), uniform(0, 3))
+        self.velocity = Vector2(uniform(0, Boid.max_vec_val),
+                                uniform(0, Boid.max_vec_val))
         self.acceleration = Vector2()
 
         self.steering_vectors: list[Vector2] = []
@@ -65,6 +67,9 @@ class Boid:
     def cohesion(self, avg_position: Vector2):
         if avg_position.magnitude() != 0:
             steering_vec = avg_position - self.position
+
+            # Cohesion tends to overwhelm other forces without this
+            steering_vec.clamp_magnitude_ip(Boid.max_vec_val)
             self.steering_vectors.append(steering_vec)
 
     def separation(self, local_flock: list[Self]):
@@ -99,7 +104,7 @@ class Boid:
         self.velocity += self.acceleration
 
         # Stop boids from moving too fast
-        self.velocity.clamp_magnitude_ip(3)
+        self.velocity.clamp_magnitude_ip(Boid.max_vec_val)
 
         local_flock = self.find_local_flock(flock)
         avg_velocity = self.get_avg_velocity(local_flock)
