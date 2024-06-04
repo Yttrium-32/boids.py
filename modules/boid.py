@@ -22,14 +22,14 @@ class Boid:
 
     def find_local_flock(self, flock: list[Self]):
         local_flock = []
-        for boid in flock:
-            behind_boid = self.velocity.angle_to(boid.velocity) < Boid.non_perceived_angle \
-                          or self.velocity.angle_to(boid.velocity) > 360 - Boid.non_perceived_angle
-            perceived = self != boid \
-                        and self.position.distance_to(boid.position) < Boid.perception \
+        for other_boid in flock:
+            behind_boid = self.velocity.angle_to(other_boid.velocity) < Boid.non_perceived_angle \
+                          or self.velocity.angle_to(other_boid.velocity) > 360 - Boid.non_perceived_angle
+            perceived = self != other_boid \
+                        and self.position.distance_to(other_boid.position) < Boid.perception \
                         and behind_boid
             if perceived:
-                local_flock.append(boid)
+                local_flock.append(other_boid)
 
         return local_flock
 
@@ -45,15 +45,27 @@ class Boid:
 
         return avg_velocity
 
+    def get_avg_postion(self, local_flock: list[Self]):
+        avg_position = Vector2()
+
+        # Only calc avg_position if other boids are in perception radius
+        if local_flock:
+            for other_boid in local_flock:
+                avg_position += other_boid.position
+
+            avg_position /= len(local_flock)
+
+        return avg_position
+
     def align(self, avg_velocity: Vector2):
         if avg_velocity.magnitude() != 0:
             steering_vec = avg_velocity - self.velocity
             self.steering_vectors.append(steering_vec)
 
-    def cohesion(self, avg_velocity: Vector2):
-        if avg_velocity.magnitude() != 0:
-            avg_velocity -= self.position
-            self.steering_vectors.append(avg_velocity.normalize())
+    def cohesion(self, avg_position: Vector2):
+        if avg_position.magnitude() != 0:
+            steering_vec = avg_position - self.position
+            self.steering_vectors.append(steering_vec)
 
     def separation(self, local_flock: list[Self]):
 
@@ -91,10 +103,11 @@ class Boid:
 
         local_flock = self.find_local_flock(flock)
         avg_velocity = self.get_avg_velocity(local_flock)
+        avg_position = self.get_avg_postion(local_flock)
 
         # The three rules
         self.align(avg_velocity)
-        self.cohesion(avg_velocity)
+        self.cohesion(avg_position)
         self.separation(local_flock)
 
         # Only steer boid if steering vectors is not empty
