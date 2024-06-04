@@ -1,13 +1,12 @@
 import pygame
 from pygame.math import Vector2
 
-from random import uniform, choice
+from random import uniform
 from typing import Self
 
 class Boid:
-    steering_force = 1
     non_perceived_angle = 60
-    perception = 10
+    perception = 50
 
     def __init__(self) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
@@ -16,7 +15,7 @@ class Boid:
 
         self.position = Vector2(*start_pos)
 
-        self.velocity = Vector2(choice([-3, 3]), choice([-3, 3]))
+        self.velocity = Vector2(uniform(0, 3), uniform(0, 3))
         self.acceleration = Vector2()
 
         self.steering_vectors: list[Vector2] = []
@@ -48,7 +47,8 @@ class Boid:
 
     def align(self, avg_velocity: Vector2):
         if avg_velocity.magnitude() != 0:
-            self.steering_vectors.append(avg_velocity.normalize())
+            steering_vec = avg_velocity - self.velocity
+            self.steering_vectors.append(steering_vec)
 
     def cohesion(self, avg_velocity: Vector2):
         if avg_velocity.magnitude() != 0:
@@ -86,6 +86,9 @@ class Boid:
         self.position += self.velocity
         self.velocity += self.acceleration
 
+        # Stop boids from moving too fast
+        self.velocity.clamp_magnitude_ip(3)
+
         local_flock = self.find_local_flock(flock)
         avg_velocity = self.get_avg_velocity(local_flock)
 
@@ -101,9 +104,10 @@ class Boid:
                 average_steering_vector += vec
             average_steering_vector /= len(self.steering_vectors)
 
-            interpolated_distance = self.velocity.normalize() \
-                    .lerp(average_steering_vector.normalize(), Boid.steering_force)
-            self.velocity = interpolated_distance * self.velocity.length()
+            self.acceleration = average_steering_vector
+
+            # Remove all steering vectors that have been applied
+            self.steering_vectors.clear()
 
         self.wrap()
 
