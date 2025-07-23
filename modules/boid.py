@@ -8,7 +8,7 @@ from typing import Self
 class Boid:
     blind_spot_angle = 60
     perception_radius = 50
-    max_vec_val = 3
+    velocity_limit = 3
 
     def __init__(self, window_width: int, window_height: int) -> None:
         self.window_size_x = window_width
@@ -19,7 +19,7 @@ class Boid:
         self.position = Vector2(*start_pos)
 
         self.velocity = Vector2(
-            uniform(0, Boid.max_vec_val), uniform(0, Boid.max_vec_val)
+            uniform(0, Boid.velocity_limit), uniform(0, Boid.velocity_limit)
         )
         self.acceleration = Vector2()
 
@@ -80,7 +80,7 @@ class Boid:
             steering_vec = avg_position - self.position
 
             # Cohesion tends to overwhelm other forces without this
-            steering_vec.clamp_magnitude_ip(Boid.max_vec_val)
+            steering_vec.clamp_magnitude_ip(Boid.velocity_limit)
             self.steering_vectors.append(steering_vec)
 
     def separation(self):
@@ -113,7 +113,8 @@ class Boid:
         self.velocity += self.acceleration
 
         # Stop boids from moving too fast
-        self.velocity.clamp_magnitude_ip(Boid.max_vec_val)
+        if self.velocity.magnitude() > Boid.velocity_limit:
+            self.velocity.scale_to_length(Boid.velocity_limit)
 
         self.find_local_flock(flock)
         avg_velocity = self.get_avg_velocity()
