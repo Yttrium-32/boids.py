@@ -6,8 +6,8 @@ from typing import Self
 
 
 class Boid:
-    non_perceived_angle = 60
-    perception = 50
+    blind_spot_angle = 60
+    perception_radius = 50
     max_vec_val = 3
 
     def __init__(self, window_width: int, window_height: int) -> None:
@@ -33,14 +33,14 @@ class Boid:
             if self is other_boid:
                 continue
 
-            if self.position.distance_to(other_boid.position) >= Boid.perception:
+            if self.position.distance_to(other_boid.position) >= Boid.perception_radius:
                 continue
 
             angle_to_other_boid = self.velocity.angle_to(other_boid.velocity)
 
             is_visible = (
-                angle_to_other_boid < Boid.non_perceived_angle
-                or angle_to_other_boid > 360 - Boid.non_perceived_angle
+                angle_to_other_boid < Boid.blind_spot_angle
+                or angle_to_other_boid > 360 - Boid.blind_spot_angle
             )
 
             if is_visible:
