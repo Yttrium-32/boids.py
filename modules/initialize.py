@@ -9,8 +9,11 @@ class Initialize:
         self.settings: dict[str, str | int] = self.parse_settings()
         self.validate_settings()
 
+        self.height = self.settings["HEIGHT"]
+        self.width = self.settings["WIDTH"]
+
         self.screen = pygame.display.set_mode(
-            (self.settings["WIDTH"], self.settings["HEIGHT"])
+            (self.width, self.height)
         )
 
         self.clock = pygame.time.Clock()
@@ -23,7 +26,7 @@ class Initialize:
         flock_size = 250
 
         for _ in range(flock_size):
-            boid = Boid()
+            boid = Boid(self.width, self.height)
             flock.append(boid)
 
         # Main rendering loop

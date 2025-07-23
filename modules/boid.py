@@ -10,9 +10,15 @@ class Boid:
     perception = 50
     max_vec_val = 3
 
-    def __init__(self) -> None:
-        window_size_x, window_size_y = pygame.display.get_window_size()
-        start_pos = (uniform(0, window_size_x), uniform(0, window_size_y))
+    def __init__(self, window_width: int, window_height: int) -> None:
+
+        self.window_size_x = window_width
+        self.window_size_y = window_height
+
+        start_pos = (
+                uniform(0, self.window_size_x),
+                uniform(0, self.window_size_y)
+        )
 
         self.position = Vector2(*start_pos)
 
@@ -93,16 +99,15 @@ class Boid:
             self.steering_vectors.append(seperation_vec)
 
     def wrap(self):
-        window_size_x, window_size_y = pygame.display.get_window_size()
-        if self.position.x > window_size_x:
-            self.position.x -= window_size_x
+        if self.position.x > self.window_size_x:
+            self.position.x -= self.window_size_x
         elif self.position.x < 0:
-            self.position.x += window_size_x
+            self.position.x += self.window_size_x
 
-        if self.position.y > window_size_y:
-            self.position.y -= window_size_y
+        if self.position.y > self.window_size_y:
+            self.position.y -= self.window_size_y
         elif self.position.y < 0:
-            self.position.y += window_size_y
+            self.position.y += self.window_size_y
 
     def update(self, flock: list[Self]):
         self.position += self.velocity
