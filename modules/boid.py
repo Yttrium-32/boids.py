@@ -4,6 +4,7 @@ from pygame.math import Vector2
 from random import uniform
 from typing import Self
 
+
 class Boid:
     non_perceived_angle = 60
     perception = 50
@@ -11,13 +12,13 @@ class Boid:
 
     def __init__(self) -> None:
         window_size_x, window_size_y = pygame.display.get_window_size()
-        start_pos = (uniform(0, window_size_x),
-                     uniform(0, window_size_y))
+        start_pos = (uniform(0, window_size_x), uniform(0, window_size_y))
 
         self.position = Vector2(*start_pos)
 
-        self.velocity = Vector2(uniform(0, Boid.max_vec_val),
-                                uniform(0, Boid.max_vec_val))
+        self.velocity = Vector2(
+            uniform(0, Boid.max_vec_val), uniform(0, Boid.max_vec_val)
+        )
         self.acceleration = Vector2()
 
         self.steering_vectors: list[Vector2] = []
@@ -25,11 +26,16 @@ class Boid:
     def find_local_flock(self, flock: list[Self]):
         local_flock = []
         for other_boid in flock:
-            behind_boid = self.velocity.angle_to(other_boid.velocity) < Boid.non_perceived_angle \
-                          or self.velocity.angle_to(other_boid.velocity) > 360 - Boid.non_perceived_angle
-            perceived = self != other_boid \
-                        and self.position.distance_to(other_boid.position) < Boid.perception \
-                        and behind_boid
+            behind_boid = (
+                self.velocity.angle_to(other_boid.velocity) < Boid.non_perceived_angle
+                or self.velocity.angle_to(other_boid.velocity)
+                > 360 - Boid.non_perceived_angle
+            )
+            perceived = (
+                self != other_boid
+                and self.position.distance_to(other_boid.position) < Boid.perception
+                and behind_boid
+            )
             if perceived:
                 local_flock.append(other_boid)
 
@@ -73,8 +79,7 @@ class Boid:
             self.steering_vectors.append(steering_vec)
 
     def separation(self, local_flock: list[Self]):
-
-        # Only seperate if a local flock exists
+        # Only separate if a local flock exists
         if not local_flock:
             return
 
@@ -82,8 +87,8 @@ class Boid:
             distance = self.position.distance_to(other_boid.position)
             diff_vec = self.position - other_boid.position
 
-            # Higher distance results in a smaller seperation vector
-            # i.e. separation vector is inversly proportional to distance
+            # Higher distance results in a smaller separation vector
+            # i.e. separation vector is inversely proportional to distance
             seperation_vec = diff_vec / distance
             self.steering_vectors.append(seperation_vec)
 
@@ -131,4 +136,3 @@ class Boid:
 
     def draw(self, screen: pygame.Surface):
         pygame.draw.circle(screen, "white", self.position, 5)
-
