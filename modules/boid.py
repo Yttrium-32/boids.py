@@ -11,14 +11,10 @@ class Boid:
     max_vec_val = 3
 
     def __init__(self, window_width: int, window_height: int) -> None:
-
         self.window_size_x = window_width
         self.window_size_y = window_height
 
-        start_pos = (
-                uniform(0, self.window_size_x),
-                uniform(0, self.window_size_y)
-        )
+        start_pos = (uniform(0, self.window_size_x), uniform(0, self.window_size_y))
 
         self.position = Vector2(*start_pos)
 
@@ -34,19 +30,21 @@ class Boid:
         self.local_flock.clear()
 
         for other_boid in flock:
-            behind_boid = (
-                self.velocity.angle_to(other_boid.velocity) < Boid.non_perceived_angle
-                or self.velocity.angle_to(other_boid.velocity)
-                > 360 - Boid.non_perceived_angle
-            )
-            perceived = (
-                self != other_boid
-                and self.position.distance_to(other_boid.position) < Boid.perception
-                and behind_boid
-            )
-            if perceived:
-                self.local_flock.append(other_boid)
+            if self is other_boid:
+                continue
 
+            if self.position.distance_to(other_boid.position) >= Boid.perception:
+                continue
+
+            angle_to_other_boid = self.velocity.angle_to(other_boid.velocity)
+
+            is_visible = (
+                angle_to_other_boid < Boid.non_perceived_angle
+                or angle_to_other_boid > 360 - Boid.non_perceived_angle
+            )
+
+            if is_visible:
+                self.local_flock.append(other_boid)
 
     def get_avg_velocity(self):
         avg_velocity = Vector2()
