@@ -1,0 +1,10 @@
+[project]
+name = "boid-simulation"
+version = "0.1.0"
+description = " A simple simulation of boids written in python using pygame"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.3.1",
+    "pygame-ce>=2.5.5",
+]
