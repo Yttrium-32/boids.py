@@ -27,10 +27,12 @@ class Boid:
         )
         self.acceleration = Vector2()
 
+        self.local_flock: list[Boid] = []
         self.steering_vectors: list[Vector2] = []
 
     def find_local_flock(self, flock: list[Self]):
-        local_flock = []
+        self.local_flock.clear()
+
         for other_boid in flock:
             behind_boid = (
                 self.velocity.angle_to(other_boid.velocity) < Boid.non_perceived_angle
@@ -43,31 +45,30 @@ class Boid:
                 and behind_boid
             )
             if perceived:
-                local_flock.append(other_boid)
+                self.local_flock.append(other_boid)
 
-        return local_flock
 
-    def get_avg_velocity(self, local_flock: list[Self]):
+    def get_avg_velocity(self):
         avg_velocity = Vector2()
 
         # Only calc avg_velocity if other boids are in perception radius
-        if local_flock:
-            for other_boid in local_flock:
+        if self.local_flock:
+            for other_boid in self.local_flock:
                 avg_velocity += other_boid.velocity
 
-            avg_velocity /= len(local_flock)
+            avg_velocity /= len(self.local_flock)
 
         return avg_velocity
 
-    def get_avg_postion(self, local_flock: list[Self]):
+    def get_avg_postion(self):
         avg_position = Vector2()
 
         # Only calc avg_position if other boids are in perception radius
-        if local_flock:
-            for other_boid in local_flock:
+        if self.local_flock:
+            for other_boid in self.local_flock:
                 avg_position += other_boid.position
 
-            avg_position /= len(local_flock)
+            avg_position /= len(self.local_flock)
 
         return avg_position
 
@@ -84,12 +85,12 @@ class Boid:
             steering_vec.clamp_magnitude_ip(Boid.max_vec_val)
             self.steering_vectors.append(steering_vec)
 
-    def separation(self, local_flock: list[Self]):
+    def separation(self):
         # Only separate if a local flock exists
-        if not local_flock:
+        if not self.local_flock:
             return
 
-        for other_boid in local_flock:
+        for other_boid in self.local_flock:
             distance = self.position.distance_to(other_boid.position)
             diff_vec = self.position - other_boid.position
 
@@ -116,14 +117,14 @@ class Boid:
         # Stop boids from moving too fast
         self.velocity.clamp_magnitude_ip(Boid.max_vec_val)
 
-        local_flock = self.find_local_flock(flock)
-        avg_velocity = self.get_avg_velocity(local_flock)
-        avg_position = self.get_avg_postion(local_flock)
+        self.find_local_flock(flock)
+        avg_velocity = self.get_avg_velocity()
+        avg_position = self.get_avg_postion()
 
         # The three rules
         self.align(avg_velocity)
         self.cohesion(avg_position)
-        self.separation(local_flock)
+        self.separation()
 
         # Only steer boid if steering vectors is not empty
         if self.steering_vectors:
